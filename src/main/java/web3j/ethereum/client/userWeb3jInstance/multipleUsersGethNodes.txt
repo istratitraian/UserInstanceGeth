@@ -1,0 +1,27 @@
+For different clients all you need to do is changing the listening port, like that:
+
+pyethapp # defaults to 30303
+eth --listen 30304 --no-ipc
+geth --port 30305 # default ipc
+parity --port 30306
+In ethereumj you can configure the port in the config file, e.g., 30307.
+Never was able to change the port in pyethapp though.
+Running parity in --geth mode here would conflict with geth,
+ depending on your needs you should disable ipc on all clients except one,
+ the example above defaults to geth ipc.
+
+Same client
+For multiple instances of the same client, you would also have to adjust the data directory.
+
+geth # defaults to port 30303 and ~/.ethereum
+geth --port 30304 --datadir ~/.ethereum-04
+geth --port 30305 --datadir ~/.ethereum-05
+geth --port 30306 --datadir ~/.ethereum-06
+
+geth account list 
+
+
+geth export C:\\newBlockchainFile # copy blockchain to file
+
+
+geth --datadir "C:\Ethereum"  # change data dir where geth stores all data 
