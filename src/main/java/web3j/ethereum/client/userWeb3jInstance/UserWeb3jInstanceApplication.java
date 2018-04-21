@@ -62,8 +62,6 @@ public class UserWeb3jInstanceApplication {
   public static String walletPassword = "132eqw!@#";
 
   public void onTerminateWeb3j() {
-//  web3j.shutdown();
-
     Web3jService web3jService = new WindowsIpcService("geth.ipc");
     Web3j w3Admin = Admin.build(web3jService);
 //    Web3j w3 = new JsonRpc2_0Admin(web3jService);
