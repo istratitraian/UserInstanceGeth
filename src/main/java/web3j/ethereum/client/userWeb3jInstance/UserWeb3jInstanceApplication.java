@@ -177,13 +177,21 @@ public class UserWeb3jInstanceApplication {
     ObjectMapper objectMapper = new ObjectMapper();
 
     //b6fde0d2_email@abc.com"
-    String walletJsonStr = "{\"address\":\"867f3cb2fdbbcbe0d0a2395e693741678397cf9a\","
-            + "\"id\":\"b6fde0d2-0441-4995-9aab-ae9ee753c9ac\",\"version\":3,\"crypto\":{\"cipher\":\"aes-128-ctr\","
-            + "\"ciphertext\":\"fc56ad869f7511f81acdafa36ea4b163970be20d3b0e47297555c4290b08cb2b\","
-            + "\"cipherparams\":{\"iv\":\"056688da2f16be6813256a7e986bf9a8\"},"
+//    String walletJsonStr = "{\"address\":\"867f3cb2fdbbcbe0d0a2395e693741678397cf9a\","
+//            + "\"id\":\"b6fde0d2-0441-4995-9aab-ae9ee753c9ac\",\"version\":3,\"crypto\":{\"cipher\":\"aes-128-ctr\","
+//            + "\"ciphertext\":\"fc56ad869f7511f81acdafa36ea4b163970be20d3b0e47297555c4290b08cb2b\","
+//            + "\"cipherparams\":{\"iv\":\"056688da2f16be6813256a7e986bf9a8\"},"
+//            + "\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,"
+//            + "\"salt\":\"d636ffce8e85eeb73342cc54ed2f8dae50622ade75f3f78c1f200d2574bfe39b\"},"
+//            + "\"mac\":\"1448a902d76db719be1fe6c5496c286d333f617b835b74b9f4a900315a268bf1\"}}";
+    String walletJsonStr = "\"{\"address\":\"30815cfa8d078d4a54a1b5315e31720a812b46df\","
+            + "\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":"
+            + "\"9618687fe69fa0f914435e544530727edee9c62c17189ea4c1928aa6b6096c05\","
+            + "\"cipherparams\":{\"iv\":\"46dd49098fd66ea30952a6f351d1f317\"},"
             + "\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,"
-            + "\"salt\":\"d636ffce8e85eeb73342cc54ed2f8dae50622ade75f3f78c1f200d2574bfe39b\"},"
-            + "\"mac\":\"1448a902d76db719be1fe6c5496c286d333f617b835b74b9f4a900315a268bf1\"}}";
+            + "\"salt\":\"7cd319e5d6e249f939763f425aee9d7705e514f370a1c49987bbd9763af1cec1\"},"
+            + "\"mac\":\"405c1d4e9f3394c43d4c8c88568a1f852233d00f5ff6daf3a95f8ce3d82f3f37\"},"
+            + "\"id\":\"a976e491-17ba-420f-b439-429f7c7f1810\",\"version\":3}\"";
     WalletFile walletFile = objectMapper.readValue(walletJsonStr, WalletFile.class);
 
     try {
