@@ -27,6 +27,8 @@ geth export C:\\newBlockchainFile # copy blockchain to file
 geth --datadir "C:\Ethereum"  # change data dir where geth stores all data 
 
 
+geth  --verbosity 0 --cache=2048
+
 http://sbootetherweb3jawse-env.eu-west-2.elasticbeanstalk.com/wallet
 http://sbootetherweb3jawse-env.eu-west-2.elasticbeanstalk.com/wallet/new
 http://sbootetherweb3jawse-env.eu-west-2.elasticbeanstalk.com/wallet/info
