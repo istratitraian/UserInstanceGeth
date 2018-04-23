@@ -16,12 +16,15 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
@@ -52,10 +55,12 @@ public class UserWeb3jInstanceApplication {
   public static String walletPassword = "132eqw!@#";
 
   public static void main(String[] args) throws FileNotFoundException {
-    if (args.length == 1) {
+    if (args.length == 2) {
       System.out.println("mnemonic : " + args[0]);
 
-      walletMnemonic = args[0];
+      walletMnemonic = args[1];
+      
+      String userId = args[0];
 
       Path lastGethPort = Paths.get("./lastGethPort.txt");
 
@@ -118,16 +123,8 @@ public class UserWeb3jInstanceApplication {
 
       if (System.getProperty("os.name").toLowerCase().startsWith("lin")) {
 
-        String linuxHome = "";
-        try {
-          Process p = Runtime.getRuntime().exec("echo $HOME");
-          p.waitFor();
-          BufferedReader buf = new BufferedReader(new InputStreamReader(
-                  p.getInputStream()));
-          linuxHome = buf.readLine();
-          System.out.println("\u001B[35m" + "linuxHome " + linuxHome + "\u001B[0m");
-        } catch (IOException | InterruptedException ex) {
-        }
+        String linuxHome = System.getProperty("user.home");
+        System.out.println("\u001B[35m" + "linuxHome " + linuxHome + "\u001B[0m");
 
         ipc = linuxHome + "/.ethereum/geth.ipc";
 
@@ -141,7 +138,7 @@ public class UserWeb3jInstanceApplication {
       int count = 1;
       while (!ipcFile.exists()) {
         try {
-          System.out.print("\bwaith for IPC " + count++);
+          System.out.print("\rwaith for IPC " + count++);
           Thread.sleep(1000);
         } catch (InterruptedException ex1) {
         }
@@ -184,14 +181,12 @@ public class UserWeb3jInstanceApplication {
     System.out.println("\u001B[33m" + web3j.getClass());
 //    System.out.println("admin.personalListAccounts() "+web3j.personalListAccounts().sendAsync().get().getResult());
     System.out.println("web3jClientAddress = " + web3jClientAddress);
-//
-
     Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().sendAsync().get();
     String clientVersion = web3ClientVersion.getWeb3ClientVersion();
-    System.out.println("clientVersion = " + clientVersion);
+    System.out.println("clientVersion = " + clientVersion + "\u001B[0m");
   }
 
-  @GetMapping("/decr")
+  @GetMapping("/decript")
   public WalletFile decriptWallet() throws ExecutionException, InterruptedException, IOException {
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -209,6 +204,17 @@ public class UserWeb3jInstanceApplication {
     return walletFile;
   }
 
+  @GetMapping("/decript/{fileContent}")
+  public Object decriptWallet(@PathVariable String fileContent) throws ExecutionException, InterruptedException, IOException, CipherException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    WalletFile walletFile = objectMapper.readValue(fileContent, WalletFile.class);
+    Credentials credentials = Credentials.create(Wallet.decrypt(walletPassword, walletFile));
+    System.out.println("clientVersion = " + credentials.getEcKeyPair().getPrivateKey());
+    System.out.println("clientVersion = " + credentials.getEcKeyPair().getPublicKey());
+
+    return walletFile;
+  }
+
   @GetMapping("/info")
   public EthSyncing info() throws ExecutionException, InterruptedException {
     return web3j.ethSyncing().sendAsync().get();
@@ -221,9 +227,23 @@ public class UserWeb3jInstanceApplication {
   }
 
   @GetMapping("/send")
-  public TransactionReceipt sendFunds() throws Exception {
-    TransactionReceipt transactionReceipt = sendEther(0.0001, toAddress);
-    return transactionReceipt;
+  public Object sendFunds() {
+    try {
+      TransactionReceipt transactionReceipt = sendEther(0.0001, toAddress);
+      return transactionReceipt;
+    } catch (Exception ex) {
+      return ex.getMessage();
+    }
+  }
+
+  @GetMapping("/send/{toAddress}")
+  public Object sendFunds(@PathVariable String toAddress) {
+    try {
+      TransactionReceipt transactionReceipt = sendEther(0.0001, toAddress);
+      return transactionReceipt;
+    } catch (Exception ex) {
+      return ex.getMessage();
+    }
   }
 
   public TransactionReceipt sendEther(double val, String toAddress) throws Exception {

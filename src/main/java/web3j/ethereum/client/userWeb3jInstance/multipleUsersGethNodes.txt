@@ -35,7 +35,19 @@ http://sbootetherweb3jawse-env.eu-west-2.elasticbeanstalk.com/wallet/info
 http://sbootetherweb3jawse-env.eu-west-2.elasticbeanstalk.com/wallet/balance
 
 
-java -jar userWeb3jInstance-0.0.1-SNAPSHOT.jar "kangaroo police entry demand cement then alter drum elevator school favorite usage"
-java -jar userWeb3jInstance-0.0.1-SNAPSHOT.jar "token believe chief shoe install vacuum fetch wrist method tide mechanic relief"
-java -jar userWeb3jInstance-0.0.1-SNAPSHOT.jar "luggage bird predict resemble venue lab fever carpet cushion message dial tribe"
-java -jar userWeb3jInstance-0.0.1-SNAPSHOT.jar "cook magic divide pledge creek position fiscal change blade conduct affair melody"
+http://localhost:8081/info
+http://localhost:8082/info
+http://localhost:8083/info
+
+http://localhost:8080/info
+http://localhost:8080/accounts
+http://localhost:8080/send
+http://localhost:8080/send/to addres
+http://localhost:8080/balance
+http://localhost:8080/decript
+http://localhost:8080/decript/wallet File Content
+
+java -jar userWeb3jInstance-1.jar 1 "kangaroo police entry demand cement then alter drum elevator school favorite usage"
+java -jar userWeb3jInstance-1.jar 2 "token believe chief shoe install vacuum fetch wrist method tide mechanic relief"
+java -jar userWeb3jInstance-1.jar 3 "luggage bird predict resemble venue lab fever carpet cushion message dial tribe"
+java -jar userWeb3jInstance-1.jar 4 "cook magic divide pledge creek position fiscal change blade conduct affair melody"
