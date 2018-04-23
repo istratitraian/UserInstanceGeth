@@ -55,12 +55,15 @@ public class UserWeb3jInstanceApplication {
   public static String walletPassword = "132eqw!@#";
 
   public static void main(String[] args) throws FileNotFoundException {
+    Map<String, Object> props = new HashMap<>();
+
     if (args.length == 2) {
-      System.out.println("mnemonic : " + args[0]);
 
       walletMnemonic = args[1];
-      
+
       String userId = args[0];
+      System.out.println("user Id : " + userId);
+      System.out.println("mnemonic: " + walletMnemonic);
 
       Path lastGethPort = Paths.get("./lastGethPort.txt");
 
@@ -84,17 +87,11 @@ public class UserWeb3jInstanceApplication {
       }
 
       try {
-        Runtime.getRuntime().exec("geth  --port " + nextGethPort + " --datadir ./ethereum" + nextGethPort);
+        Runtime.getRuntime().exec("geth  --verbosity 0 --cache=2048 --nousb --port " + nextGethPort + " --datadir ./ethereum" + nextGethPort);
 
         Thread.sleep(2000);
 
-        Map<String, Object> props = new HashMap<>();
         props.put("server.port", nextServerPort);
-
-        new SpringApplicationBuilder()
-                .sources(UserWeb3jInstanceApplication.class)
-                .properties(props)
-                .run(args);
 
       } catch (IOException | InterruptedException e2) {
         System.out.println("\u001B[31m" + "ERROR geth.exe " + "\u001B[0m");
@@ -116,8 +113,9 @@ public class UserWeb3jInstanceApplication {
         System.out.println("\u001B[35m" + "geth start : " + exec.isAlive() + "\u001B[0m");
       } catch (IOException ex) {
       }
+    }
 
-      Map<String, Object> props = new HashMap<>();
+    {
 
       String ipc = "\\\\.\\pipe\\geth.ipc";
 
@@ -172,7 +170,7 @@ public class UserWeb3jInstanceApplication {
   private static String toAddress;
 
 //  @Value("${web3j.network-id}")
-  @Value("${web3j.client-address}")
+//  @Value("${web3j.client-address}")
   String web3jClientAddress;
 
   @PostConstruct
@@ -180,7 +178,7 @@ public class UserWeb3jInstanceApplication {
 
     System.out.println("\u001B[33m" + web3j.getClass());
 //    System.out.println("admin.personalListAccounts() "+web3j.personalListAccounts().sendAsync().get().getResult());
-    System.out.println("web3jClientAddress = " + web3jClientAddress);
+//    System.out.println("web3jClientAddress = " + web3jClientAddress);
     Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().sendAsync().get();
     String clientVersion = web3ClientVersion.getWeb3ClientVersion();
     System.out.println("clientVersion = " + clientVersion + "\u001B[0m");
