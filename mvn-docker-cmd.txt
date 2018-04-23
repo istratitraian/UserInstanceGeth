@@ -1,0 +1,11 @@
+### clean and build project
+mvn clean package
+
+
+### creates and mounts Docker.image
+### docker build -file "Dockerfile", -tag-name must be in lowercase, where to store image "." curent dir
+
+docker build -f Dockerfile -t userweb3jinstance . 
+
+
+docker run -p 8080:8080 3df8016c5bc2

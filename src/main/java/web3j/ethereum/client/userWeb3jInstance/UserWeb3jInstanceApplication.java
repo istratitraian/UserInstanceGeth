@@ -3,17 +3,18 @@ package web3j.ethereum.client.userWeb3jInstance;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,45 +29,27 @@ import org.web3j.crypto.Wallet;
 import org.web3j.crypto.WalletFile;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.Web3jService;
-import org.web3j.protocol.admin.Admin;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthAccounts;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthSyncing;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
-import org.web3j.protocol.ipc.WindowsIpcService;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
-import rx.Subscription;
 
 @RestController
 @SpringBootApplication
 public class UserWeb3jInstanceApplication {
 
-  // OS X/Linux/Unix:
-//Web3j web3 = Web3j.build(new UnixIpcService("/path/to/socketfile"));
-// Windows
-//Web3j web3 = Web3j.build(new WindowsIpcService("/path/to/namedpipefile"));
   @Autowired
-  private Web3j web3j;// = Web3j.build(new HttpService());  // defaults to http://localhost:8545/
+  private Web3j web3j;
 
   private static Credentials ownerCredentials;
   private static Credentials sendToCredentials;
 
-//  public static String walletMnemonic = " surround toilet typical woman guide tree hockey era summer unaware can version";//LOCAL TEST
-//  public static String walletPassword = "";
   public static String walletMnemonic = "kangaroo police entry demand cement then alter drum elevator school favorite usage";//istrati.traian@yahoo.com
-//  public static String walletMnemonic = "luggage bird predict resemble venue lab fever carpet cushion message dial tribe";//0x55181d8a5d63783f99fc619fb287cee760e3bf2e
   public static String walletPassword = "132eqw!@#";
-
-  public void onTerminateWeb3j() {
-    Web3jService web3jService = new WindowsIpcService("geth.ipc");
-    Web3j w3Admin = Admin.build(web3jService);
-//    Web3j w3 = new JsonRpc2_0Admin(web3jService);
-//    w3.shutdown();
-  }
 
   public static void main(String[] args) throws FileNotFoundException {
     if (args.length == 1) {
@@ -122,31 +105,51 @@ public class UserWeb3jInstanceApplication {
 
     } else {
 
-      Map<String, Object> props = new HashMap<>();
-
       try {
-        Process exec = Runtime.getRuntime().exec("geth");
+        Process exec = Runtime.getRuntime().exec("geth  --verbosity 0 --cache=2048 --nousb");
+//          Process exec = Runtime.getRuntime().exec("geth  --verbosity 0 --cache=512 --nousb --networkid 1");
         System.out.println("\u001B[35m" + "geth start : " + exec.isAlive() + "\u001B[0m");
       } catch (IOException ex) {
       }
 
+      Map<String, Object> props = new HashMap<>();
+
       String ipc = "\\\\.\\pipe\\geth.ipc";
 
       if (System.getProperty("os.name").toLowerCase().startsWith("lin")) {
-        ipc = "~/.ethereum/get.ipc";
+
+        String linuxHome = "";
+        try {
+          Process p = Runtime.getRuntime().exec("echo $HOME");
+          p.waitFor();
+          BufferedReader buf = new BufferedReader(new InputStreamReader(
+                  p.getInputStream()));
+          linuxHome = buf.readLine();
+          System.out.println("\u001B[35m" + "linuxHome " + linuxHome + "\u001B[0m");
+        } catch (IOException | InterruptedException ex) {
+        }
+
+        ipc = linuxHome + "/.ethereum/geth.ipc";
+
+//        web3j = Web3j.build(new UnixIpcService("/home/it/.ethereum/geth.ipc"));
+      } else {
+//        web3j = Web3j.build(new WindowsIpcService("\\\\.\\pipe\\geth.ipc"));
       }
 
-      try {
-        System.out.println("waith for IPC " + ipc);
-        Thread.sleep(10000);
-      } catch (InterruptedException ex1) {
-      }
+      File ipcFile = Paths.get(ipc).toFile();
 
-//      Web3jAutoConfiguration df;
-//
-//org.web3j.protocol.core.JsonRpc2_0Web3j jd;
+      int count = 1;
+      while (!ipcFile.exists()) {
+        try {
+          System.out.print("\bwaith for IPC " + count++);
+          Thread.sleep(1000);
+        } catch (InterruptedException ex1) {
+        }
+      }
+      System.out.println("");
+
       props.put("web3j.client-address", ipc);
-
+//
       new SpringApplicationBuilder()
               .sources(UserWeb3jInstanceApplication.class)
               .properties(props)
@@ -173,22 +176,15 @@ public class UserWeb3jInstanceApplication {
 
 //  @Value("${web3j.network-id}")
   @Value("${web3j.client-address}")
-  String web3jNetworkId;
+  String web3jClientAddress;
 
   @PostConstruct
   void clientVersionExample() throws Exception {
 
-    System.out.println("\u001B[31m" + web3j.getClass());
-    System.out.println("web3jNetworkId = " + web3jNetworkId);
-    CountDownLatch countDownLatch = new CountDownLatch(1);
-
-    Subscription subscription = web3j.web3ClientVersion().observable().subscribe(x -> {
-      System.out.println("Client is running version: {}" + x.getWeb3ClientVersion());
-      countDownLatch.countDown();
-    });
-
-    countDownLatch.await();
-    subscription.unsubscribe();
+    System.out.println("\u001B[33m" + web3j.getClass());
+//    System.out.println("admin.personalListAccounts() "+web3j.personalListAccounts().sendAsync().get().getResult());
+    System.out.println("web3jClientAddress = " + web3jClientAddress);
+//
 
     Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().sendAsync().get();
     String clientVersion = web3ClientVersion.getWeb3ClientVersion();
@@ -199,14 +195,7 @@ public class UserWeb3jInstanceApplication {
   public WalletFile decriptWallet() throws ExecutionException, InterruptedException, IOException {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    String walletJsonStr = "\"{\"address\":\"30815cfa8d078d4a54a1b5315e31720a812b46df\","
-            + "\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":"
-            + "\"9618687fe69fa0f914435e544530727edee9c62c17189ea4c1928aa6b6096c05\","
-            + "\"cipherparams\":{\"iv\":\"46dd49098fd66ea30952a6f351d1f317\"},"
-            + "\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,"
-            + "\"salt\":\"7cd319e5d6e249f939763f425aee9d7705e514f370a1c49987bbd9763af1cec1\"},"
-            + "\"mac\":\"405c1d4e9f3394c43d4c8c88568a1f852233d00f5ff6daf3a95f8ce3d82f3f37\"},"
-            + "\"id\":\"a976e491-17ba-420f-b439-429f7c7f1810\",\"version\":3}\"";
+    String walletJsonStr = "{\"address\":\"30815cfa8d078d4a54a1b5315e31720a812b46df\",\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"9618687fe69fa0f914435e544530727edee9c62c17189ea4c1928aa6b6096c05\",\"cipherparams\":{\"iv\":\"46dd49098fd66ea30952a6f351d1f317\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,\"salt\":\"7cd319e5d6e249f939763f425aee9d7705e514f370a1c49987bbd9763af1cec1\"},\"mac\":\"405c1d4e9f3394c43d4c8c88568a1f852233d00f5ff6daf3a95f8ce3d82f3f37\"},\"id\":\"a976e491-17ba-420f-b439-429f7c7f1810\",\"version\":3}";
     WalletFile walletFile = objectMapper.readValue(walletJsonStr, WalletFile.class);
 
     try {
@@ -232,15 +221,9 @@ public class UserWeb3jInstanceApplication {
   }
 
   @GetMapping("/send")
-  public TransactionReceipt sendFunds() {
-    try {
-      TransactionReceipt transactionReceipt = sendEther(0.0001, toAddress);
-      return transactionReceipt;
-    } catch (Exception e) {
-      System.out.println(" --- ERROR sendFunds() () " + e);
-
-    }
-    return null;
+  public TransactionReceipt sendFunds() throws Exception {
+    TransactionReceipt transactionReceipt = sendEther(0.0001, toAddress);
+    return transactionReceipt;
   }
 
   public TransactionReceipt sendEther(double val, String toAddress) throws Exception {
